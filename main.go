@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -20,7 +21,7 @@ func main() {
 		log.Fatalf("Fail to open the log file: %s", err)
 	}
 
-	log.SetOutput(logFile)
+	log.SetOutput(io.MultiWriter(os.Stdout, logFile))
 
 	apiCfg := apiConfig{
 		fileserverHits: atomic.Int32{},
