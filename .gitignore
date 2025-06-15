@@ -2,3 +2,4 @@ chirpy
 *.png
 welcome.html
 *.log
+.env
