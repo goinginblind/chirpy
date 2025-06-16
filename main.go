@@ -14,11 +14,6 @@ import (
 	_ "github.com/lib/pq"
 )
 
-type apiConfig struct {
-	fileserverHits atomic.Int32
-	Queries        *database.Queries
-}
-
 func main() {
 	// setup logging
 	logFile, err := os.OpenFile("server.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
@@ -37,6 +32,7 @@ func main() {
 	dbURL := os.Getenv("DB_URL")
 	filepathRoot := os.Getenv("FILEPATH_ROOT")
 	port := os.Getenv("PORT")
+	platform := os.Getenv("PLATFORM")
 
 	// connect to db
 	db, err := sql.Open("postgres", dbURL)
@@ -49,7 +45,8 @@ func main() {
 	// setup config
 	apiCfg := apiConfig{
 		fileserverHits: atomic.Int32{},
-		Queries:        dbQueries,
+		DB:             dbQueries,
+		Platform:       platform,
 	}
 
 	// setup multiplexer and handles
@@ -61,6 +58,7 @@ func main() {
 	mux.HandleFunc("GET /admin/metrics", apiCfg.handlerMetrics)
 	mux.HandleFunc("POST /admin/reset", apiCfg.handlerReset)
 	mux.HandleFunc("POST /api/validate_chirp", handlerValidate)
+	mux.HandleFunc("POST /api/users", apiCfg.handlerCreateUser)
 
 	// setup server
 	srv := &http.Server{
