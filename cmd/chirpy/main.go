@@ -66,8 +66,9 @@ func main() {
 	mux.HandleFunc("GET /api/healthz", server.HandlerReadiness)
 	mux.HandleFunc("GET /admin/metrics", apiServ.HandlerMetrics)
 	mux.HandleFunc("POST /admin/reset", apiServ.HandlerReset)
-	mux.HandleFunc("POST /api/chirps", apiServ.HandlerCreateChirp)
 	mux.HandleFunc("POST /api/users", apiServ.HandlerCreateUser)
+	mux.HandleFunc("POST /api/chirps", apiServ.HandlerCreateChirp)
+	mux.HandleFunc("GET /api/chirps", apiServ.HandlerGetAllChirps)
 
 	// setup server
 	srv := &http.Server{

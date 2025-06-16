@@ -32,13 +32,7 @@ func (s *Server) HandlerCreateChirp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondWithJSON(w, http.StatusCreated, Chirp{
-		ID:        chirp.ID,
-		CreatedAt: chirp.CreatedAt.String(),
-		UpdatedAt: chirp.UpdatedAt.String(),
-		Body:      chirp.Body,
-		UserID:    chirp.UserID,
-	})
+	respondWithJSON(w, http.StatusCreated, convertDBChripToResponse(chirp))
 }
 
 func replaceProfanity(chirp string) string {
