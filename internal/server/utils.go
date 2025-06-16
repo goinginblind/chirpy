@@ -13,12 +13,14 @@ func respondWithJSON(w http.ResponseWriter, code int, payload any) {
 	w.WriteHeader(code)
 	if err := json.NewEncoder(w).Encode(payload); err != nil {
 		log.Printf("Fail to encode json: %s\n", err)
-		w.WriteHeader(500) //does this actually do anything at this point tho..
-		return
 	}
 }
 
-func convertDBChripToResponse(chirp database.Chirp) Chirp {
+func respondWithError(w http.ResponseWriter, code int, msg string) {
+	respondWithJSON(w, code, map[string]string{"error": msg})
+}
+
+func convertDBChirpToResponse(chirp database.Chirp) Chirp {
 	return Chirp{
 		ID:        chirp.ID,
 		CreatedAt: chirp.CreatedAt.String(),
@@ -31,7 +33,7 @@ func convertDBChripToResponse(chirp database.Chirp) Chirp {
 func convertManyDBChirps(chirps []database.Chirp) []Chirp {
 	out := make([]Chirp, len(chirps))
 	for i, c := range chirps {
-		out[i] = convertDBChripToResponse(c)
+		out[i] = convertDBChirpToResponse(c)
 	}
 	return out
 }

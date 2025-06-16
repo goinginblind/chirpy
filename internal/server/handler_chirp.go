@@ -12,12 +12,12 @@ import (
 func (s *Server) HandlerCreateChirp(w http.ResponseWriter, r *http.Request) {
 	var params createChirpParams
 	if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
-		respondWithJSON(w, http.StatusBadRequest, map[string]string{"error": "Something went wrong"})
+		respondWithError(w, http.StatusBadRequest, "Something went wrong")
 		log.Printf("Fail to decode request body: %s\n", err)
 		return
 	}
 	if len(params.Body) > s.Cfg.MaxChirpLen {
-		respondWithJSON(w, http.StatusBadRequest, map[string]string{"error": "Chirp is too long"})
+		respondWithError(w, http.StatusBadRequest, "Chirp is too long")
 		return
 	}
 	params.Body = replaceProfanity(params.Body)
@@ -27,12 +27,12 @@ func (s *Server) HandlerCreateChirp(w http.ResponseWriter, r *http.Request) {
 		UserID: params.UserID,
 	})
 	if err != nil {
-		respondWithJSON(w, http.StatusBadRequest, map[string]string{"error": "Fail to create chirp"})
+		respondWithError(w, http.StatusBadRequest, "Fail to create chirp")
 		log.Printf("Fail to create a chirp in db: %s\n", err)
 		return
 	}
 
-	respondWithJSON(w, http.StatusCreated, convertDBChripToResponse(chirp))
+	respondWithJSON(w, http.StatusCreated, convertDBChirpToResponse(chirp))
 }
 
 func replaceProfanity(chirp string) string {
