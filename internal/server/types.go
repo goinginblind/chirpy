@@ -2,8 +2,9 @@ package server
 
 import "github.com/google/uuid"
 
-type createUserParams struct {
-	Email string `json:"email"`
+type loginDetails struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 type User struct {

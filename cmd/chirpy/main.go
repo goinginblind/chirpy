@@ -70,6 +70,7 @@ func main() {
 	mux.HandleFunc("POST /api/chirps", apiServ.HandlerCreateChirp)
 	mux.HandleFunc("GET /api/chirps", apiServ.HandlerGetAllChirps)
 	mux.HandleFunc("GET /api/chirps/{chirpID}", apiServ.HandlerGetChirpByID)
+	mux.HandleFunc("POST /api/login", apiServ.HandlerLogin)
 
 	// setup server
 	srv := &http.Server{

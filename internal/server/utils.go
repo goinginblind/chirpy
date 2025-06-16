@@ -37,3 +37,21 @@ func convertManyDBChirps(chirps []database.Chirp) []Chirp {
 	}
 	return out
 }
+
+func convertDBUserRowToResponse(user database.CreateUserRow) User {
+	return User{
+		ID:        user.ID,
+		Email:     user.Email,
+		CreatedAt: user.CreatedAt.String(),
+		UpdatedAt: user.UpdatedAt.String(),
+	}
+}
+
+func convertDBUserToResponse(user database.User) User {
+	return User{
+		ID:        user.ID,
+		Email:     user.Email,
+		CreatedAt: user.CreatedAt.String(),
+		UpdatedAt: user.UpdatedAt.String(),
+	}
+}
