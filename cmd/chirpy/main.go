@@ -8,7 +8,9 @@ import (
 	"os"
 	"sync/atomic"
 
+	"github.com/goinginblind/chirpy/internal/config"
 	"github.com/goinginblind/chirpy/internal/database"
+	"github.com/goinginblind/chirpy/internal/server"
 	"github.com/joho/godotenv"
 
 	_ "github.com/lib/pq"
@@ -43,22 +45,22 @@ func main() {
 	log.Println("Connected to database.")
 
 	// setup config
-	apiCfg := apiConfig{
-		fileserverHits: atomic.Int32{},
+	apiServ := server.Server{Cfg: config.APIConfig{
+		FileserverHits: atomic.Int32{},
 		DB:             dbQueries,
 		Platform:       platform,
-	}
+	}}
 
 	// setup multiplexer and handles
 	mux := http.NewServeMux()
-	fsHandler := http.StripPrefix("/app/", apiCfg.middlewareMetricsInc(http.FileServer(http.Dir(filepathRoot))))
+	fsHandler := http.StripPrefix("/app/", apiServ.MiddlewareMetricsInc(http.FileServer(http.Dir(filepathRoot))))
 	mux.Handle("/app/", fsHandler)
 
-	mux.HandleFunc("GET /api/healthz", handlerReadiness)
-	mux.HandleFunc("GET /admin/metrics", apiCfg.handlerMetrics)
-	mux.HandleFunc("POST /admin/reset", apiCfg.handlerReset)
-	mux.HandleFunc("POST /api/validate_chirp", handlerValidate)
-	mux.HandleFunc("POST /api/users", apiCfg.handlerCreateUser)
+	mux.HandleFunc("GET /api/healthz", server.HandlerReadiness)
+	mux.HandleFunc("GET /admin/metrics", apiServ.HandlerMetrics)
+	mux.HandleFunc("POST /admin/reset", apiServ.HandlerReset)
+	mux.HandleFunc("POST /api/validate_chirp", server.HandlerValidate)
+	mux.HandleFunc("POST /api/users", apiServ.HandlerCreateUser)
 
 	// setup server
 	srv := &http.Server{

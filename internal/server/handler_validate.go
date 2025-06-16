@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"encoding/json"
@@ -25,7 +25,7 @@ func replaceProfanity(chirp string) string {
 // handlerValidate handles HTTP requests to validate the length of a "chirp" message.
 // It expects a JSON payload with a "body" field and checks if its length does not exceed 140 characters.
 // Responds with a JSON of a chirp, profanity is filtered out or an error message if the input is invalid or too long.
-func handlerValidate(w http.ResponseWriter, r *http.Request) {
+func HandlerValidate(w http.ResponseWriter, r *http.Request) {
 	const maxChirpLen = 140
 
 	var params parameters

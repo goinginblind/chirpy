@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"encoding/json"
@@ -8,7 +8,7 @@ import (
 	"github.com/lib/pq"
 )
 
-func (cfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Request) {
+func (s *Server) HandlerCreateUser(w http.ResponseWriter, r *http.Request) {
 	var params createUserParams
 	if err := json.NewDecoder(r.Body).Decode(&params); err != nil || params.Email == "" {
 		log.Printf("Fail to decode request body: %v", err)
@@ -16,7 +16,7 @@ func (cfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	user, err := cfg.DB.CreateUser(r.Context(), params.Email)
+	user, err := s.Cfg.DB.CreateUser(r.Context(), params.Email)
 
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {

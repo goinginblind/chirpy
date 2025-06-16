@@ -1,4 +1,5 @@
 chirpy
+!cmd/chirpy
 *.png
 welcome.html
 *.log

@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"fmt"
@@ -6,14 +6,14 @@ import (
 )
 
 // Injects cfg.fileserverHits.Add(1) into the handler
-func (cfg *apiConfig) middlewareMetricsInc(next http.Handler) http.Handler {
+func (s *Server) MiddlewareMetricsInc(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cfg.fileserverHits.Add(1)
+		s.Cfg.FileserverHits.Add(1)
 		next.ServeHTTP(w, r)
 	})
 }
 
-func (cfg *apiConfig) handlerMetrics(w http.ResponseWriter, r *http.Request) {
+func (s *Server) HandlerMetrics(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(fmt.Sprintf(`
@@ -25,5 +25,5 @@ func (cfg *apiConfig) handlerMetrics(w http.ResponseWriter, r *http.Request) {
 </body>
 
 </html>
-	`, cfg.fileserverHits.Load())))
+	`, s.Cfg.FileserverHits.Load())))
 }

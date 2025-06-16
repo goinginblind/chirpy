@@ -1,16 +1,4 @@
-package main
-
-import (
-	"sync/atomic"
-
-	"github.com/goinginblind/chirpy/internal/database"
-)
-
-type apiConfig struct {
-	fileserverHits atomic.Int32
-	DB             *database.Queries
-	Platform       string
-}
+package server
 
 type parameters struct {
 	Body string `json:"body"`
