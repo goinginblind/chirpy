@@ -1,7 +1,9 @@
 package server
 
 import (
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
 
@@ -16,9 +18,14 @@ func (s *Server) HandlerLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := s.Cfg.DB.GetUserByEmal(r.Context(), params.Email)
+	user, err := s.Cfg.DB.GetUserByEmail(r.Context(), params.Email)
 	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, "Incorrect email or password")
+		if errors.Is(err, sql.ErrNoRows) {
+			respondWithError(w, http.StatusUnauthorized, "Incorrect email or password")
+			return
+		}
+		log.Printf("Failed to get user by email: %v", err)
+		respondWithError(w, http.StatusInternalServerError, "Internal error")
 		return
 	}
 
@@ -28,5 +35,5 @@ func (s *Server) HandlerLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondWithJSON(w, http.StatusCreated, convertDBUserToResponse(user))
+	respondWithJSON(w, http.StatusOK, convertDBUserToResponse(user))
 }
