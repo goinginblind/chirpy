@@ -31,7 +31,7 @@ func (s *Server) HandlerCreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	respondWithJSON(w, http.StatusCreated, User{
-		ID:        user.ID.String(),
+		ID:        user.ID,
 		Email:     user.Email,
 		CreatedAt: user.CreatedAt.String(),
 		UpdatedAt: user.UpdatedAt.String(),

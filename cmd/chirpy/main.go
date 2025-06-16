@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"sync/atomic"
 
 	"github.com/goinginblind/chirpy/internal/config"
@@ -35,6 +36,11 @@ func main() {
 	filepathRoot := os.Getenv("FILEPATH_ROOT")
 	port := os.Getenv("PORT")
 	platform := os.Getenv("PLATFORM")
+	maxChirpLen, err := strconv.Atoi(os.Getenv("MAX_MSG_LEN"))
+	if err != nil {
+		log.Println("Error loading maxChirpLen from .env, so its set as '140'")
+		maxChirpLen = 140
+	}
 
 	// connect to db
 	db, err := sql.Open("postgres", dbURL)
@@ -49,6 +55,7 @@ func main() {
 		FileserverHits: atomic.Int32{},
 		DB:             dbQueries,
 		Platform:       platform,
+		MaxChirpLen:    maxChirpLen,
 	}}
 
 	// setup multiplexer and handles
@@ -59,7 +66,7 @@ func main() {
 	mux.HandleFunc("GET /api/healthz", server.HandlerReadiness)
 	mux.HandleFunc("GET /admin/metrics", apiServ.HandlerMetrics)
 	mux.HandleFunc("POST /admin/reset", apiServ.HandlerReset)
-	mux.HandleFunc("POST /api/validate_chirp", server.HandlerValidate)
+	mux.HandleFunc("POST /api/chirps", apiServ.HandlerCreateChirp)
 	mux.HandleFunc("POST /api/users", apiServ.HandlerCreateUser)
 
 	// setup server

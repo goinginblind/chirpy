@@ -1,6 +1,5 @@
 chirpy
 !cmd/chirpy
-*.png
-welcome.html
+assets
 *.log
 .env
