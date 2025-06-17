@@ -6,14 +6,13 @@ import (
 	"errors"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/goinginblind/chirpy/internal/auth"
 )
 
 func (s *Server) HandlerLogin(w http.ResponseWriter, r *http.Request) {
 	// Decode the whole json thats passed in the request
-	var params loginDetails
+	var params loginRequest
 	if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
 		log.Printf("Fail to decode request body: %v", err)
 		respondWithError(w, http.StatusBadRequest, "Incorrect request")
@@ -39,22 +38,13 @@ func (s *Server) HandlerLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Tokenizing
-	// - get the expiration duration from the request (max dur = 3600 seconds = 1 hour)
-	// - make a token
-	// - respond with a json containing all the user info (no password) and the token
-	var expiresIn time.Duration
-	if params.ExpiresInSeconds <= 0 || params.ExpiresInSeconds > 3600 {
-		expiresIn = time.Hour
-	} else {
-		expiresIn = time.Duration(params.ExpiresInSeconds) * time.Second
-	}
-	token, err := auth.MakeJWT(user.ID, s.Cfg.TokenSecret, expiresIn)
+	// Tokenizing: make a token and send it with a response body
+	token, err := auth.MakeJWT(user.ID, s.Cfg.TokenSecret)
 	if err != nil {
 		log.Printf("Failed attempt to create user token: %v", err)
 		respondWithError(w, http.StatusInternalServerError, "Internal error")
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, convertDBUserToResponse(user, token))
+	respondWithJSON(w, http.StatusOK, dbUserToLoginParams(user, token, token)) // Second token should be a refreshToken
 }

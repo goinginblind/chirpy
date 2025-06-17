@@ -22,7 +22,7 @@ func (s *Server) HandlerCreateChirp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var params createChirpParams
+	var params createChirpRequest
 	if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
 		respondWithError(w, http.StatusBadRequest, "Something went wrong")
 		log.Printf("Fail to decode request body: %s\n", err)

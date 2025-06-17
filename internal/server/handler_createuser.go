@@ -14,7 +14,7 @@ func (s *Server) HandlerCreateUser(w http.ResponseWriter, r *http.Request) {
 	// maybe need to implement password validation
 	// - should it be long enough
 	// - maybe it should contain some special chars, etc
-	var params loginDetails
+	var params loginRequest
 	if err := json.NewDecoder(r.Body).Decode(&params); err != nil || params.Email == "" || params.Password == "" {
 		log.Printf("Fail to decode request body: %v", err)
 		respondWithError(w, http.StatusBadRequest, "Incorrect request")
@@ -46,5 +46,5 @@ func (s *Server) HandlerCreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondWithJSON(w, http.StatusCreated, convertDBUserRowToResponse(user))
+	respondWithJSON(w, http.StatusCreated, dbUserRowToCreateParams(user))
 }

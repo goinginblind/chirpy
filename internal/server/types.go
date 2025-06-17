@@ -2,25 +2,37 @@ package server
 
 import "github.com/google/uuid"
 
-type loginDetails struct {
-	Email            string `json:"email"`
-	Password         string `json:"password"`
-	ExpiresInSeconds int    `json:"expires_in_seconds"`
+// Used to decode *into* from the request body when user tries to login or register
+type loginRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
-type User struct {
+// Sent back as json upon user registration
+type createUserParams struct {
 	ID        uuid.UUID `json:"id"`
 	Email     string    `json:"email"`
 	CreatedAt string    `json:"created_at"`
 	UpdatedAt string    `json:"updated_at"`
-	Token     string    `json:"token"`
 }
 
-type createChirpParams struct {
+// Sent back as json upon user login
+type loginUserParams struct {
+	ID           uuid.UUID `json:"id"`
+	Email        string    `json:"email"`
+	CreatedAt    string    `json:"created_at"`
+	UpdatedAt    string    `json:"updated_at"`
+	Token        string    `json:"token"`
+	RefreshToken string    `json:"refresh_token"`
+}
+
+// Used to decode *into* from the request body when user tries to post a chirp
+type createChirpRequest struct {
 	Body string `json:"body"`
 }
 
-type Chirp struct {
+// Sent back as json upon posting a chirp
+type chirpParams struct {
 	ID        uuid.UUID `json:"id"`
 	CreatedAt string    `json:"created_at"`
 	UpdatedAt string    `json:"updated_at"`

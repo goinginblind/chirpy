@@ -7,9 +7,12 @@ import (
 )
 
 type APIConfig struct {
-	FileserverHits atomic.Int32
 	DB             *database.Queries
-	Platform       string
+	DBUrl          string
+	FilepathRoot   string
+	FileserverHits atomic.Int32
 	MaxChirpLen    int
+	Port           string
+	Platform       string
 	TokenSecret    string
 }
