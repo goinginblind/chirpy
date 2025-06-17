@@ -21,6 +21,6 @@ func CheckPasswordHash(hash, password string) error {
 
 func benchmark() {
 	start := time.Now()
-	_, _ = bcrypt.GenerateFromPassword([]byte("password123"), 14)
+	_, _ = bcrypt.GenerateFromPassword([]byte("password123"), bcrypt.DefaultCost)
 	fmt.Println("Took:", time.Since(start))
 }
