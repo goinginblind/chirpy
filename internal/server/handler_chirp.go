@@ -6,16 +6,29 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/goinginblind/chirpy/internal/auth"
 	"github.com/goinginblind/chirpy/internal/database"
 )
 
 func (s *Server) HandlerCreateChirp(w http.ResponseWriter, r *http.Request) {
+	token, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+	userID, err := auth.ValidateJWT(token, s.Cfg.TokenSecret)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
 	var params createChirpParams
 	if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
 		respondWithError(w, http.StatusBadRequest, "Something went wrong")
 		log.Printf("Fail to decode request body: %s\n", err)
 		return
 	}
+
 	if len(params.Body) > s.Cfg.MaxChirpLen {
 		respondWithError(w, http.StatusBadRequest, "Chirp is too long")
 		return
@@ -24,7 +37,7 @@ func (s *Server) HandlerCreateChirp(w http.ResponseWriter, r *http.Request) {
 
 	chirp, err := s.Cfg.DB.CreateChirp(r.Context(), database.CreateChirpParams{
 		Body:   params.Body,
-		UserID: params.UserID,
+		UserID: userID,
 	})
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, "Fail to create chirp")

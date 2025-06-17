@@ -36,6 +36,7 @@ func main() {
 	filepathRoot := os.Getenv("FILEPATH_ROOT")
 	port := os.Getenv("PORT")
 	platform := os.Getenv("PLATFORM")
+	tokenSecret := os.Getenv("TOKEN_SECRET")
 	maxChirpLen, err := strconv.Atoi(os.Getenv("MAX_MSG_LEN"))
 	if err != nil {
 		log.Println("Error loading maxChirpLen from .env, so its set as '140'")
@@ -56,6 +57,7 @@ func main() {
 		DB:             dbQueries,
 		Platform:       platform,
 		MaxChirpLen:    maxChirpLen,
+		TokenSecret:    tokenSecret,
 	}}
 
 	// setup multiplexer and handles
@@ -63,14 +65,16 @@ func main() {
 	fsHandler := http.StripPrefix("/app/", apiServ.MiddlewareMetricsInc(http.FileServer(http.Dir(filepathRoot))))
 	mux.Handle("/app/", fsHandler)
 
-	mux.HandleFunc("GET /api/healthz", server.HandlerReadiness)
 	mux.HandleFunc("GET /admin/metrics", apiServ.HandlerMetrics)
 	mux.HandleFunc("POST /admin/reset", apiServ.HandlerReset)
+
+	mux.HandleFunc("GET /api/healthz", server.HandlerReadiness)
 	mux.HandleFunc("POST /api/users", apiServ.HandlerCreateUser)
+	mux.HandleFunc("POST /api/login", apiServ.HandlerLogin)
+
 	mux.HandleFunc("POST /api/chirps", apiServ.HandlerCreateChirp)
 	mux.HandleFunc("GET /api/chirps", apiServ.HandlerGetAllChirps)
 	mux.HandleFunc("GET /api/chirps/{chirpID}", apiServ.HandlerGetChirpByID)
-	mux.HandleFunc("POST /api/login", apiServ.HandlerLogin)
 
 	// setup server
 	srv := &http.Server{

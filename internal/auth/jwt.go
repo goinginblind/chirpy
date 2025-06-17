@@ -2,6 +2,9 @@ package auth
 
 import (
 	"fmt"
+	"log"
+	"net/http"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -22,7 +25,7 @@ func MakeJWT(userID uuid.UUID, tokenSecret string, expiresIn time.Duration) (str
 func ValidateJWT(tokenString, tokenSecret string) (uuid.UUID, error) {
 	claims := &jwt.RegisteredClaims{}
 
-	token, err := jwt.ParseWithClaims(tokenString, claims, func(t *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(t *jwt.Token) (any, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
 		}
@@ -39,4 +42,21 @@ func ValidateJWT(tokenString, tokenSecret string) (uuid.UUID, error) {
 	}
 
 	return uuid.MustParse(claims.Subject), nil
+}
+
+func GetBearerToken(headers http.Header) (string, error) {
+	// format of Authorization field in the header is 'Bearer TOKEN_STRING'
+	authHeader := headers.Get("Authorization")
+	if authHeader == "" {
+		log.Println("Authorization header missing")
+		return "", fmt.Errorf("authorization header is empty")
+	}
+
+	const prefix = "Bearer "
+	if !strings.HasPrefix(authHeader, prefix) {
+		log.Println("Authorization header has invalid format")
+		return "", fmt.Errorf("invalid authorization header")
+	}
+
+	return strings.TrimPrefix(authHeader, prefix), nil
 }

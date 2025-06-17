@@ -47,11 +47,12 @@ func convertDBUserRowToResponse(user database.CreateUserRow) User {
 	}
 }
 
-func convertDBUserToResponse(user database.User) User {
+func convertDBUserToResponse(user database.User, token string) User {
 	return User{
 		ID:        user.ID,
 		Email:     user.Email,
 		CreatedAt: user.CreatedAt.String(),
 		UpdatedAt: user.UpdatedAt.String(),
+		Token:     token,
 	}
 }

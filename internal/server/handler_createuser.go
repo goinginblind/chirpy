@@ -2,7 +2,6 @@ package server
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -21,7 +20,6 @@ func (s *Server) HandlerCreateUser(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusBadRequest, "Incorrect request")
 		return
 	}
-	fmt.Println(params.Password)
 
 	hashPass, err := auth.HashPassword(params.Password)
 	if err != nil {
