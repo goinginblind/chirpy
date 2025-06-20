@@ -12,6 +12,40 @@ import (
 	"github.com/google/uuid"
 )
 
+const changeUserLoginInfo = `-- name: ChangeUserLoginInfo :one
+UPDATE users
+SET email = $3, 
+    hashed_password = $2,
+    updated_at = now()
+WHERE id = $1
+RETURNING id, created_at, updated_at, email
+`
+
+type ChangeUserLoginInfoParams struct {
+	ID             uuid.UUID
+	HashedPassword string
+	Email          string
+}
+
+type ChangeUserLoginInfoRow struct {
+	ID        uuid.UUID
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	Email     string
+}
+
+func (q *Queries) ChangeUserLoginInfo(ctx context.Context, arg ChangeUserLoginInfoParams) (ChangeUserLoginInfoRow, error) {
+	row := q.db.QueryRowContext(ctx, changeUserLoginInfo, arg.ID, arg.HashedPassword, arg.Email)
+	var i ChangeUserLoginInfoRow
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Email,
+	)
+	return i, err
+}
+
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (email, hashed_password)
 VALUES (

@@ -68,5 +68,5 @@ func Login(cfg *config.APIConfig, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	handlers.RespondWithJSON(w, http.StatusOK, dbUserToLoginParams(user, token, refreshToken))
+	handlers.RespondWithJSON(w, http.StatusOK, convertUserToLoginParams(user, token, refreshToken))
 }

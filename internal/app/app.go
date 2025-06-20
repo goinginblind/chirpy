@@ -63,12 +63,13 @@ func Run() error {
 
 	// Admin handles
 	mux.HandleFunc("GET /admin/metrics", cfg.InjectConfig(admin.Metrics))
-	mux.HandleFunc("POST /admin/reset", cfg.InjectConfig(admin.Reset))
 	mux.HandleFunc("GET /api/healthz", admin.HandlerReadiness)
+	mux.HandleFunc("POST /admin/reset", cfg.InjectConfig(admin.Reset))
 
 	// Users handles
 	mux.HandleFunc("POST /api/users", cfg.InjectConfig(users.Create))
 	mux.HandleFunc("POST /api/login", cfg.InjectConfig(users.Login))
+	mux.HandleFunc("PUT /api/users", cfg.InjectConfig(users.ChangeLoginInfo))
 
 	// Tokens handles
 	mux.HandleFunc("POST /api/refresh", cfg.InjectConfig(tokens.RefreshAccessToken))
