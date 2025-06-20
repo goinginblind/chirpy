@@ -1,4 +1,4 @@
-package server
+package chirps
 
 import (
 	"encoding/json"
@@ -7,45 +7,47 @@ import (
 	"strings"
 
 	"github.com/goinginblind/chirpy/internal/auth"
+	"github.com/goinginblind/chirpy/internal/config"
 	"github.com/goinginblind/chirpy/internal/database"
+	"github.com/goinginblind/chirpy/internal/handlers"
 )
 
-func (s *Server) HandlerCreateChirp(w http.ResponseWriter, r *http.Request) {
+func Create(cfg *config.APIConfig, w http.ResponseWriter, r *http.Request) {
 	token, err := auth.GetBearerToken(r.Header)
 	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, err.Error())
+		handlers.RespondWithError(w, http.StatusUnauthorized, err.Error())
 		return
 	}
-	userID, err := auth.ValidateJWT(token, s.Cfg.TokenSecret)
+	userID, err := auth.ValidateJWT(token, cfg.TokenSecret)
 	if err != nil {
-		respondWithError(w, http.StatusUnauthorized, err.Error())
+		handlers.RespondWithError(w, http.StatusUnauthorized, err.Error())
 		return
 	}
 
 	var params createChirpRequest
 	if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
-		respondWithError(w, http.StatusBadRequest, "Something went wrong")
+		handlers.RespondWithError(w, http.StatusBadRequest, "Something went wrong")
 		log.Printf("Fail to decode request body: %s\n", err)
 		return
 	}
 
-	if len(params.Body) > s.Cfg.MaxChirpLen {
-		respondWithError(w, http.StatusBadRequest, "Chirp is too long")
+	if len(params.Body) > cfg.MaxChirpLen {
+		handlers.RespondWithError(w, http.StatusBadRequest, "Chirp is too long")
 		return
 	}
 	params.Body = replaceProfanity(params.Body)
 
-	chirp, err := s.Cfg.DB.CreateChirp(r.Context(), database.CreateChirpParams{
+	chirp, err := cfg.DB.CreateChirp(r.Context(), database.CreateChirpParams{
 		Body:   params.Body,
 		UserID: userID,
 	})
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Fail to create chirp")
+		handlers.RespondWithError(w, http.StatusBadRequest, "Fail to create chirp")
 		log.Printf("Fail to create a chirp in db: %s\n", err)
 		return
 	}
 
-	respondWithJSON(w, http.StatusCreated, convertDBChirpToResponse(chirp))
+	handlers.RespondWithJSON(w, http.StatusCreated, convertDBChirpToResponse(chirp))
 }
 
 func replaceProfanity(chirp string) string {

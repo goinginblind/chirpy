@@ -1,14 +1,16 @@
-package server
+package admin
 
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/goinginblind/chirpy/internal/config"
 )
 
-func (s *Server) HandlerMetrics(w http.ResponseWriter, r *http.Request) {
+func Metrics(cfg *config.APIConfig, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(fmt.Sprintf(`
+	fmt.Fprintf(w, `
 <html>
 
 <body>
@@ -17,5 +19,5 @@ func (s *Server) HandlerMetrics(w http.ResponseWriter, r *http.Request) {
 </body>
 
 </html>
-	`, s.Cfg.FileserverHits.Load())))
+	`, cfg.FileserverHits.Load())
 }

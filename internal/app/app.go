@@ -12,7 +12,10 @@ import (
 	"time"
 
 	"github.com/goinginblind/chirpy/internal/database"
-	"github.com/goinginblind/chirpy/internal/server"
+	"github.com/goinginblind/chirpy/internal/handlers/admin"
+	"github.com/goinginblind/chirpy/internal/handlers/chirps"
+	"github.com/goinginblind/chirpy/internal/handlers/tokens"
+	"github.com/goinginblind/chirpy/internal/handlers/users"
 	"github.com/joho/godotenv"
 
 	_ "github.com/lib/pq"
@@ -30,14 +33,14 @@ func Run() error {
 
 	// load environmental variables and parse config from env
 	_ = godotenv.Load()
-	apiConfig, err := loadConfigFromEnv()
+	cfg, err := loadConfigFromEnv()
 	if err != nil {
 		log.Printf("error loading environment variables or parsing config: %v\n", err)
 		return err
 	}
 
 	// connect to db
-	db, err := sql.Open("postgres", apiConfig.DBUrl)
+	db, err := sql.Open("postgres", cfg.DBUrl)
 	if err != nil {
 		log.Printf("Error opening db: %s\n", err)
 		return err
@@ -50,37 +53,36 @@ func Run() error {
 	}
 	log.Println("Connected to database.")
 
-	// setup db into config with a server wrapper used by handlers
-	apiConfig.DB = dbQueries
-	apiServ := server.Server{Cfg: apiConfig}
+	// setup db into config
+	cfg.DB = dbQueries
 
 	// setup multiplexer and handles
 	mux := http.NewServeMux()
-	fsHandler := http.StripPrefix("/app/", apiServ.MiddlewareMetricsInc(http.FileServer(http.Dir(apiConfig.FilepathRoot))))
+	fsHandler := http.StripPrefix("/app/", cfg.MiddlewareMetricsInc(http.FileServer(http.Dir(cfg.FilepathRoot))))
 	mux.Handle("/app/", fsHandler)
 
-	mux.HandleFunc("GET /admin/metrics", apiServ.HandlerMetrics)
-	mux.HandleFunc("POST /admin/reset", apiServ.HandlerReset)
+	mux.HandleFunc("GET /admin/metrics", cfg.InjectConfig(admin.Metrics))
+	mux.HandleFunc("POST /admin/reset", cfg.InjectConfig(admin.Reset))
 
-	mux.HandleFunc("GET /api/healthz", server.HandlerReadiness)
-	mux.HandleFunc("POST /api/users", apiServ.HandlerCreateUser)
-	mux.HandleFunc("POST /api/login", apiServ.HandlerLogin)
-	mux.HandleFunc("POST /api/refresh", apiServ.HandlerRefreshAccessToken)
-	mux.HandleFunc("POST /api/revoke", apiServ.HandlerRevokeRefreshToken)
+	mux.HandleFunc("GET /api/healthz", admin.HandlerReadiness)
+	mux.HandleFunc("POST /api/users", cfg.InjectConfig(users.Create))
+	mux.HandleFunc("POST /api/login", cfg.InjectConfig(users.Login))
+	mux.HandleFunc("POST /api/refresh", cfg.InjectConfig(tokens.RefreshAccessToken))
+	mux.HandleFunc("POST /api/revoke", cfg.InjectConfig(tokens.RevokeRefreshToken))
 
-	mux.HandleFunc("POST /api/chirps", apiServ.HandlerCreateChirp)
-	mux.HandleFunc("GET /api/chirps", apiServ.HandlerGetAllChirps)
-	mux.HandleFunc("GET /api/chirps/{chirpID}", apiServ.HandlerGetChirpByID)
+	mux.HandleFunc("POST /api/chirps", cfg.InjectConfig(chirps.Create))
+	mux.HandleFunc("GET /api/chirps", cfg.InjectConfig(chirps.GetAll))
+	mux.HandleFunc("GET /api/chirps/{chirpID}", cfg.InjectConfig(chirps.GetOneByID))
 
 	// setup server
 	srv := &http.Server{
-		Addr:    ":" + apiConfig.Port,
+		Addr:    ":" + cfg.Port,
 		Handler: mux,
 	}
 
 	// run it with a proper shutdown just in case
 	go func() {
-		log.Printf("Serving files from %s on port: %s\n", apiConfig.FilepathRoot, apiConfig.Port)
+		log.Printf("Serving files from %s on port: %s\n", cfg.FilepathRoot, cfg.Port)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Printf("ListenAndServe(): %v\n", err)
 		}

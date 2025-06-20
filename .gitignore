@@ -1,5 +1,17 @@
+# Compiled binary 
 chirpy
+
+# main.go is located in the folder that goes by my compiled file name, so can't ignore this
 !cmd/chirpy
+
+# Logo picture, and html files
 static
+
+# Log files
 *.log
+
+# .env files
 .env
+
+# curl output file to test the api requests and responses
+response.json
