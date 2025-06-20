@@ -61,15 +61,20 @@ func Run() error {
 	fsHandler := http.StripPrefix("/app/", cfg.MiddlewareMetricsInc(http.FileServer(http.Dir(cfg.FilepathRoot))))
 	mux.Handle("/app/", fsHandler)
 
+	// Admin handles
 	mux.HandleFunc("GET /admin/metrics", cfg.InjectConfig(admin.Metrics))
 	mux.HandleFunc("POST /admin/reset", cfg.InjectConfig(admin.Reset))
-
 	mux.HandleFunc("GET /api/healthz", admin.HandlerReadiness)
+
+	// Users handles
 	mux.HandleFunc("POST /api/users", cfg.InjectConfig(users.Create))
 	mux.HandleFunc("POST /api/login", cfg.InjectConfig(users.Login))
+
+	// Tokens handles
 	mux.HandleFunc("POST /api/refresh", cfg.InjectConfig(tokens.RefreshAccessToken))
 	mux.HandleFunc("POST /api/revoke", cfg.InjectConfig(tokens.RevokeRefreshToken))
 
+	// Chirps handles
 	mux.HandleFunc("POST /api/chirps", cfg.InjectConfig(chirps.Create))
 	mux.HandleFunc("GET /api/chirps", cfg.InjectConfig(chirps.GetAll))
 	mux.HandleFunc("GET /api/chirps/{chirpID}", cfg.InjectConfig(chirps.GetOneByID))
