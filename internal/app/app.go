@@ -65,6 +65,8 @@ func Run() error {
 	mux.HandleFunc("GET /api/healthz", server.HandlerReadiness)
 	mux.HandleFunc("POST /api/users", apiServ.HandlerCreateUser)
 	mux.HandleFunc("POST /api/login", apiServ.HandlerLogin)
+	mux.HandleFunc("POST /api/refresh", apiServ.HandlerRefreshAccessToken)
+	mux.HandleFunc("POST /api/revoke", apiServ.HandlerRevokeRefreshToken)
 
 	mux.HandleFunc("POST /api/chirps", apiServ.HandlerCreateChirp)
 	mux.HandleFunc("GET /api/chirps", apiServ.HandlerGetAllChirps)

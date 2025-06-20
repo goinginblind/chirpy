@@ -6,12 +6,14 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/goinginblind/chirpy/internal/auth"
+	"github.com/goinginblind/chirpy/internal/database"
 )
 
 func (s *Server) HandlerLogin(w http.ResponseWriter, r *http.Request) {
-	// Decode the whole json thats passed in the request
+	// Decode the request
 	var params loginRequest
 	if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
 		log.Printf("Fail to decode request body: %v", err)
@@ -38,13 +40,31 @@ func (s *Server) HandlerLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Tokenizing: make a token and send it with a response body
+	// Make an access token and send it with a response body
 	token, err := auth.MakeJWT(user.ID, s.Cfg.TokenSecret)
 	if err != nil {
-		log.Printf("Failed attempt to create user token: %v", err)
+		log.Printf("Failed attempt to create access token: %v", err)
 		respondWithError(w, http.StatusInternalServerError, "Internal error")
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, dbUserToLoginParams(user, token, token)) // Second token should be a refreshToken
+	// Make a refresh token and store it in the DB
+	refreshToken, err := auth.MakeRefreshToken()
+	if err != nil {
+		log.Printf("Failed attempt to create refresh token: %v", err)
+		respondWithError(w, http.StatusInternalServerError, "Internal error")
+		return
+	}
+	_, err = s.Cfg.DB.CreateRefreshToken(r.Context(), database.CreateRefreshTokenParams{
+		Token:     refreshToken,
+		UserID:    user.ID,
+		ExpiresAt: time.Now().Add(time.Hour * 24 * 60),
+	})
+	if err != nil {
+		log.Printf("Failed attempt of parsing refresh token to DB: %v", err)
+		respondWithError(w, http.StatusInternalServerError, "Internal error")
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, dbUserToLoginParams(user, token, refreshToken))
 }
