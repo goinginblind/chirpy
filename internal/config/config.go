@@ -15,4 +15,5 @@ type APIConfig struct {
 	Port           string
 	Platform       string
 	TokenSecret    string
+	PolkaKey       string
 }

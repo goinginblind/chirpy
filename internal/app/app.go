@@ -14,6 +14,7 @@ import (
 	"github.com/goinginblind/chirpy/internal/database"
 	"github.com/goinginblind/chirpy/internal/handlers/admin"
 	"github.com/goinginblind/chirpy/internal/handlers/chirps"
+	"github.com/goinginblind/chirpy/internal/handlers/hooks"
 	"github.com/goinginblind/chirpy/internal/handlers/tokens"
 	"github.com/goinginblind/chirpy/internal/handlers/users"
 	"github.com/joho/godotenv"
@@ -70,7 +71,6 @@ func Run() error {
 	mux.HandleFunc("POST /api/users", cfg.InjectConfig(users.Create))
 	mux.HandleFunc("POST /api/login", cfg.InjectConfig(users.Login))
 	mux.HandleFunc("PUT /api/users", cfg.InjectConfig(users.ChangeLoginInfo))
-	mux.HandleFunc("POST /api/polka/webhooks", cfg.InjectConfig(users.UpgradeToChirpyRed))
 
 	// Tokens handles
 	mux.HandleFunc("POST /api/refresh", cfg.InjectConfig(tokens.RefreshAccessToken))
@@ -81,6 +81,9 @@ func Run() error {
 	mux.HandleFunc("GET /api/chirps", cfg.InjectConfig(chirps.GetAll))
 	mux.HandleFunc("GET /api/chirps/{chirpID}", cfg.InjectConfig(chirps.GetOneByID))
 	mux.HandleFunc("DELETE /api/chirps/{chirpID}", cfg.InjectConfig(chirps.DeleteOneByID))
+
+	// Webhooks
+	mux.HandleFunc("POST /api/polka/webhooks", cfg.InjectConfig(hooks.UpgradeToChirpyRed))
 
 	// setup server
 	srv := &http.Server{

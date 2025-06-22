@@ -27,6 +27,7 @@ func ChangeLoginInfo(cfg *config.APIConfig, w http.ResponseWriter, r *http.Reque
 	}
 
 	// Decode request body and validate that it has (somewhat) valid password and email
+	defer r.Body.Close()
 	var logInf loginRequest
 	err = json.NewDecoder(r.Body).Decode(&logInf)
 	if err != nil {
@@ -34,7 +35,7 @@ func ChangeLoginInfo(cfg *config.APIConfig, w http.ResponseWriter, r *http.Reque
 		handlers.RespondWithError(w, http.StatusBadRequest, "Incorrect request")
 		return
 	}
-	defer r.Body.Close()
+
 	if logInf.Email == "" || logInf.Password == "" {
 		handlers.RespondWithError(w, http.StatusBadRequest, "Email and password must be provided")
 		return

@@ -27,10 +27,3 @@ type loginUserParams struct {
 	Token        string    `json:"token"`
 	RefreshToken string    `json:"refresh_token"`
 }
-
-type upgradeRequest struct {
-	Event string `json:"event"`
-	Data  struct {
-		UserID string `json:"user_id"`
-	} `json:"data"`
-}

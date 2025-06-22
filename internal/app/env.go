@@ -21,7 +21,8 @@ func loadConfigFromEnv() (*config.APIConfig, error) {
 	}
 	dbURL := os.Getenv("DB_URL")
 	tokenSecret := os.Getenv("TOKEN_SECRET")
-	if dbURL == "" || tokenSecret == "" {
+	polkaKey := os.Getenv("POLKA_KEY")
+	if dbURL == "" || tokenSecret == "" || polkaKey == "" {
 		return nil, fmt.Errorf("missing essential enviromental variables")
 	}
 
@@ -32,5 +33,6 @@ func loadConfigFromEnv() (*config.APIConfig, error) {
 		Port:         port,
 		Platform:     platform,
 		TokenSecret:  tokenSecret,
+		PolkaKey:     polkaKey,
 	}, nil
 }
