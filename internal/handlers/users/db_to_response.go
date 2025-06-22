@@ -9,19 +9,21 @@ TODO: Rethink your (life choices) function names
 
 func convertCreRowToCreateParams(user database.CreateUserRow) createUserParams {
 	return createUserParams{
-		ID:        user.ID,
-		Email:     user.Email,
-		CreatedAt: user.CreatedAt.String(),
-		UpdatedAt: user.UpdatedAt.String(),
+		ID:          user.ID,
+		Email:       user.Email,
+		IsChirpyRed: user.IsChirpyRed,
+		CreatedAt:   user.CreatedAt.String(),
+		UpdatedAt:   user.UpdatedAt.String(),
 	}
 }
 
 func convertLogRowToCreateParams(user database.ChangeUserLoginInfoRow) createUserParams {
 	return createUserParams{
-		ID:        user.ID,
-		Email:     user.Email,
-		CreatedAt: user.CreatedAt.String(),
-		UpdatedAt: user.UpdatedAt.String(),
+		ID:          user.ID,
+		Email:       user.Email,
+		IsChirpyRed: user.IsChirpyRed,
+		CreatedAt:   user.CreatedAt.String(),
+		UpdatedAt:   user.UpdatedAt.String(),
 	}
 }
 
@@ -29,6 +31,7 @@ func convertUserToLoginParams(user database.User, token, refreshToken string) lo
 	return loginUserParams{
 		ID:           user.ID,
 		Email:        user.Email,
+		IsChirpyRed:  user.IsChirpyRed,
 		CreatedAt:    user.CreatedAt.String(),
 		UpdatedAt:    user.UpdatedAt.String(),
 		Token:        token,

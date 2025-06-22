@@ -70,6 +70,7 @@ func Run() error {
 	mux.HandleFunc("POST /api/users", cfg.InjectConfig(users.Create))
 	mux.HandleFunc("POST /api/login", cfg.InjectConfig(users.Login))
 	mux.HandleFunc("PUT /api/users", cfg.InjectConfig(users.ChangeLoginInfo))
+	mux.HandleFunc("POST /api/polka/webhooks", cfg.InjectConfig(users.UpgradeToChirpyRed))
 
 	// Tokens handles
 	mux.HandleFunc("POST /api/refresh", cfg.InjectConfig(tokens.RefreshAccessToken))

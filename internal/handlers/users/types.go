@@ -10,18 +10,27 @@ type loginRequest struct {
 
 // Sent back as json upon user registration or login info change
 type createUserParams struct {
-	ID        uuid.UUID `json:"id"`
-	Email     string    `json:"email"`
-	CreatedAt string    `json:"created_at"`
-	UpdatedAt string    `json:"updated_at"`
+	ID          uuid.UUID `json:"id"`
+	Email       string    `json:"email"`
+	IsChirpyRed bool      `json:"is_chirpy_red"`
+	CreatedAt   string    `json:"created_at"`
+	UpdatedAt   string    `json:"updated_at"`
 }
 
 // Sent back as json upon user login
 type loginUserParams struct {
 	ID           uuid.UUID `json:"id"`
 	Email        string    `json:"email"`
+	IsChirpyRed  bool      `json:"is_chirpy_red"`
 	CreatedAt    string    `json:"created_at"`
 	UpdatedAt    string    `json:"updated_at"`
 	Token        string    `json:"token"`
 	RefreshToken string    `json:"refresh_token"`
+}
+
+type upgradeRequest struct {
+	Event string `json:"event"`
+	Data  struct {
+		UserID string `json:"user_id"`
+	} `json:"data"`
 }
