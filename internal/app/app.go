@@ -78,7 +78,7 @@ func Run() error {
 
 	// Chirps handles
 	mux.HandleFunc("POST /api/chirps", cfg.InjectConfig(chirps.Create))
-	mux.HandleFunc("GET /api/chirps", cfg.InjectConfig(chirps.GetAll))
+	mux.HandleFunc("GET /api/chirps", cfg.InjectConfig(chirps.GetChirps))
 	mux.HandleFunc("GET /api/chirps/{chirpID}", cfg.InjectConfig(chirps.GetOneByID))
 	mux.HandleFunc("DELETE /api/chirps/{chirpID}", cfg.InjectConfig(chirps.DeleteOneByID))
 
