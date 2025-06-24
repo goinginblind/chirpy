@@ -1,3 +1,4 @@
+// Package admin provides handlers which allow to check the metricss, readiness and reset the DB
 package admin
 
 import (

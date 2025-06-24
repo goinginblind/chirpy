@@ -10,7 +10,9 @@ func (cfg *APIConfig) MiddlewareMetricsInc(next http.Handler) http.Handler {
 	})
 }
 
-// Injects config into a handler
+// Injects config into a handler.
+// Done so that handlers and config can be in different packages,
+// but that requires handlers to be non-methods, so config is passed as an argument in the handler.
 func (cfg *APIConfig) InjectConfig(f func(*APIConfig, http.ResponseWriter, *http.Request)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		f(cfg, w, r)

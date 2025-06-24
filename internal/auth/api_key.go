@@ -1,3 +1,5 @@
+// Package auth provides functions to check create and check authentication and refresh tokens,
+// hash and verify hashed passwords and get api keys from request headers.
 package auth
 
 import (

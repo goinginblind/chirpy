@@ -1,3 +1,4 @@
+// Provides the Run() function, which is then run in main and handles all the app logic.
 package app
 
 import (
