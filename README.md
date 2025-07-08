@@ -1,6 +1,6 @@
 # Chirpy
 
-Chirpy is a Go-based web service for managing users, chirps (short messages), and authentication. It features a modular structure, RESTful endpoints, and concurrency-safe metrics. Basically a twitter backaend clone.
+Chirpy is a Go-based web service for managing users, chirps (short messages), and authentication. It features a modular structure, RESTful endpoints, and concurrency-safe metrics. Basically a twitter backend clone.
 
 ## Features
 - User registration and authentication (API keys, JWT, password)
